@@ -66,7 +66,7 @@ class common {
         }
         */
 
-        if (defined('__DEBUG__')) {
+        if (defined('__DEBUG__') && __DEBUG__) {
             //@ob_clean();
             echo nl2br($exception->__toString());
         } else {
@@ -80,4 +80,19 @@ class common {
 
         exit;
     }
+
+    /**
+     * 输出错误页面
+     *
+     * @access public
+     * @param mixed $exception 错误信息
+     * @return void
+     */
+    public static function error($exception) {
+		$message = $exception->getMessage();
+		if ($exception instanceof mysql) {
+			//die('error');
+		}
+		die( $message );
+	}
 }
