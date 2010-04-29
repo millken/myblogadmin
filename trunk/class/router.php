@@ -80,7 +80,7 @@ class router {
 	}
 
 	public static function init() {
-		$url = $_SERVER['REQUEST_URI'];
+		$url = self::getUrl();
 		$isCustom = false;
 		//print_r(self::$rules);
 		if (count(self::$rules)) {
@@ -110,6 +110,9 @@ class router {
 		self::$rules = $rules;
 	}
 
+	public static function getUrl() {
+		return str_replace(array('/index.php?','/index.php'),'',$_SERVER['REQUEST_URI']);
+	}
 
 	public static function getController() { return self::$controller; }
 	public static function getAction() { return self::$action; }
