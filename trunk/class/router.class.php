@@ -11,7 +11,7 @@
  * URL Router class
  *
  */
-class router {
+class Router {
 	static protected $instance;
 	static protected $controller;
 	static protected $action;
@@ -36,7 +36,6 @@ class router {
 	private static function ruleMatch($rule, $data) {
 		$ruleItems = explode('/',$rule); self::arrayClean(&$ruleItems);
 		$dataItems = explode('/',$data); self::arrayClean(&$dataItems);
-
 		if (count($ruleItems) == count($dataItems)) {
 			$result = array();
 
@@ -53,6 +52,7 @@ class router {
 			}
 
 			if (count($result) > 0) return $result;
+			return true;
 			unset($result);
 		}
 		return false;
@@ -87,9 +87,9 @@ class router {
 			foreach(self::$rules as $ruleKey => $ruleData) {
 				$params = self::ruleMatch($ruleKey,$url);
 				if ($params) {
-					self::$controller = $ruleData['controller'];
-					self::$action = $ruleData['action'];
-					self::$params = $params;
+					self::$controller = isset($ruleData['controller'])?$ruleData['controller']:'home';
+					self::$action = isset($ruleData['action'])?$ruleData['action']:'view';
+					self::$params = is_bool($params)?array():$params;
 					$isCustom = true;
 					break;
 				}
@@ -97,9 +97,7 @@ class router {
 		}
 
 		if (!$isCustom) self::defaultRoutes($url);
-
-		if (!strlen(self::$controller)) self::$controller = 'home';
-		if (!strlen(self::$action)) self::$action = 'view';
+		return $isCustom;
 	}
 
 	public static function addRule($rule, $target) {
@@ -111,7 +109,9 @@ class router {
 	}
 
 	public static function getUrl() {
-		return str_replace(array('/index.php?','/index.php'),'',$_SERVER['REQUEST_URI']);
+		$url = str_replace(array('/index.php?','/index.php'),'/',$_SERVER['REQUEST_URI']);
+		$url = preg_replace('~\/{2,}~', '/', $url);
+		return $url;
 	}
 
 	public static function getController() { return self::$controller; }

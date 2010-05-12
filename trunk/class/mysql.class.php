@@ -11,7 +11,7 @@
  * Description of mysql
  *
  */
-class mysql {
+class Mysql {
 
 	const CHARSET = 'utf8';
 	private $_prefix;
@@ -84,7 +84,9 @@ class mysql {
 		if ( defined('SAVEQUERIES') && SAVEQUERIES )
 		$this->timer_start();
 
-		$this->result = @mysql_query($query, $this->link);
+		$this->result = mysql_query($query, $this->link);
+		if(mysql_error() <> '' || mysql_errno())
+			throw new MysqlException($query);
 		++$this->num_queries;
 
 		if ( defined('SAVEQUERIES') && SAVEQUERIES )
@@ -219,7 +221,7 @@ class mysql {
 		} elseif ( $output == ARRAY_N ) {
 			return $this->last_result[$y] ? array_values(get_object_vars($this->last_result[$y])) : null;
 		} else {
-			$this->print_error(/*WP_I18N_DB_GETROW_ERROR*/' $db->get_row(string query, output type, int offset) -- 输出类型必须是以下类型中的一个：OBJECT, ARRAY_A, ARRAY_N'/*/WP_I18N_DB_GETROW_ERROR*/);
+			throw new MysqlException(' $db->get_row(string query, output type, int offset) -- 输出类型必须是以下类型中的一个：OBJECT, ARRAY_A, ARRAY_N');
 		}
 	}
 
@@ -294,6 +296,9 @@ class mysql {
 		}
 	}
 
+	private function escape_by_ref(&$string) {
+		$string = mysql_real_escape_string( $string, $this->link );
+	}
 	private function timer_start() {
 		$this->time_start = microtime(true);
 		return true;
@@ -329,4 +334,8 @@ class mysql {
 
 		return $caller;
 	}
+}
+
+class MysqlException extends Exception {
+
 }
