@@ -17,7 +17,6 @@ class AdminSetup {
 	}
 
 	public function view( $args ) {
-		echo Blog::getOptions('title');
 		if(!empty($_POST)) {
 			$defaults = array('title' ,'subtitle' ,'blognotice' ,'domain' ,'baseurl' ,'feedurl' ,'timedelta' ,'theme_name' ,
 				'posts_per_page' ,'comments_order' ,'comments_per_page' ,'comment_notify_mail' ,'rpcuser' ,'rpcpassword' ,

@@ -11,12 +11,34 @@
  * Description of home
  *
  */
-class AdminCategory {
+class AdminCategory extends AdminDo {
 	public function __construct() {
+
 	}
 
-	public function view( $args ) {
-		Blog::getTerms($args);
+	public function view( $args = '' ) {
+		$category = Blog::getTerms($args);
+		$this->assign('editurl', '/admin/category/edit/');
+		$this->assign('category', $category);
+	}
+	public function edit($args) {
+		$category = Blog::getTerm($args);
+		if(empty($category))return;
+		$category->slug = urldecode($category->slug);
+		if(!empty($_POST['name'])) {
+			$data = array_merge($_POST,array('tid' => $category->tid));
+			$result = Blog::setTerms($data);
+
+		}
+
+		$this->assign('category', $category);
+	}
+	public function add() {
+		if(!empty($_POST)) {
+			Blog::setTerms($_POST);
+			if(Blog::iserror())
+			echo Blog::message();
+		}
 	}
 	//put your code here
 }

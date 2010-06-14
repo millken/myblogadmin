@@ -11,6 +11,11 @@
  * Description of mysql
  *
  */
+define('OBJECT', 'OBJECT', true);
+
+define('ARRAY_A', 'ARRAY_A', false);
+
+define('ARRAY_N', 'ARRAY_N', false);
 class Mysql {
 
 	const CHARSET = 'utf8';
@@ -26,7 +31,7 @@ class Mysql {
 		throw new exception("<b>Fatal Error:</b> mysql requires mySQL Lib to be compiled and or linked in to the PHP engine'");
 		$this->link = mysql_connect($dbhost, $dbuser, $dbpassword);
 		$this->select_db($dbname);
-		mysql_query("SET character_set_connection={CHARSET}, character_set_results={CHARSET}, character_set_client=binary", $this->link);
+		mysql_query("SET character_set_connection=".self::CHARSET.", character_set_results=".self::CHARSET.", character_set_client=binary", $this->link);
 	}
 
 	private function select_db($dbname) {
@@ -86,7 +91,7 @@ class Mysql {
 
 		$this->result = mysql_query($query, $this->link);
 		if(mysql_error() <> '' || mysql_errno())
-			throw new MysqlException($query);
+			throw new MysqlException(mysql_errno().mysql_error() . $query);
 		++$this->num_queries;
 
 		if ( defined('SAVEQUERIES') && SAVEQUERIES )
@@ -191,7 +196,7 @@ class Mysql {
 		}
 
 		// If there is a value return it else return null
-		return (isset($values[$x]) && $values[$x]!=='') ? $values[$x] : null;
+		return isset($values[$x]) ? $values[$x] : null;
 	}
 
 	/**

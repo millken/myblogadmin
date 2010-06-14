@@ -53,6 +53,9 @@ class Template {
 			$oldtime = substr($content, 8, strpos($content,"*/") - 8);
 			if( intval($oldtime) == $nowtime)
 			return $this->_eval($content);
+		}else{
+			if(false == touch($compilefile))
+			throw new Exception ("the compiled file: $compilefile unable writed!");
 		}
 		$content = $this->fetch_source( $templatename );
 		$content = preg_replace(
@@ -91,9 +94,13 @@ class Template {
 		}elseif($tag{0} == '*' && substr($tag, -1) == '*') { // 注释部分
 			return '';
 		}elseif($tag{0} == '$'){ // variable
-			return '<?php echo $this->_vars[\'' . substr($tag,1) . '\']; ?>';
+			$tags = explode('.',substr($tag,1));
+			$var = array_shift($tags);
+			$vart = '';
+			if(!empty($tags)) $vart = '->' . implode('->', $tags);
+			return '<?php echo $this->_vars[\'' . $var . '\']' . $vart . '; ?>';
 		}elseif($tag{0} == '/'){ // end tag
-			$plug = substr($tag, 1) . 'End';
+			$plug = 'End' . substr($tag, 1) ;
 		}else{
 			$plug = array_shift(explode(' ', $tag));
 		}
@@ -128,7 +135,7 @@ class Template {
 
 	public function loadPlugin($plugin_name)	{
 		$classname = 'Template_Plugin_' . ucfirst(strtolower($plugin_name));
-		if (class_exists($classname, false) && method_exists(Template_Plugin,'compile'))
+		if (class_exists($classname, false) && method_exists('Template_Plugin','compile'))
 		return new $classname;
 
 		$filename = TEMPLATE_PLUGIN_DIR . strtolower($classname) . '.php';
@@ -156,7 +163,8 @@ class Template {
 		$this->compile_dir = $dir;
 	}
 	public function setTemplateDir( $dir ) {
-		$this->template_dir = $dir;
+		if(!is_dir($dir)) throw new Exception ("the directory : $dir not exists!");
+		$this->template_dir = $dir . DIRECTORY_SEPARATOR;
 	}
 }
 
@@ -185,7 +193,7 @@ class Template_Plugin_Foreach implements Template_Plugin {
 
 }
 
-class Template_plugin_ForeachEnd implements Template_Plugin {
+class Template_plugin_EndForeach implements Template_Plugin {
 	function compile($tag) {
 		$output = '<?php }$this->pop_vars(); ?>';
 		return $output;
@@ -196,7 +204,7 @@ class Template_Plugin_If implements Template_Plugin {
 		preg_match_all('/\-?\d+[\.\d]+|\'[^\'|\s]*\'|"[^"|\s]*"|[\$\w\.]+|!==|===|==|!=|<>|<<|>>|<=|>=|&&|\|\||\(|\)|,|\!|\^|=|&|<|>|~|\||\%|\+|\-|\/|\*|\@|\S/', $tag, $match);
 		$tokens = $match[0];
 		//允许使用的函数列表
-		$functionlist = array('strtolower','strtoupper','strlen','in_array','array_exists','array_keys','array_values');
+		$functionlist = array('strtolower','strtoupper','strlen','urldecode','in_array','array_exists','array_keys','array_values');
 		unset($tokens[0]);
 		for ($i = 1, $count = count($tokens); $i < $count; $i++) {
 			$token = &$tokens[$i];
@@ -222,10 +230,28 @@ class Template_Plugin_If implements Template_Plugin {
 				break;
 			}
 		}
+		return $this->output($tokens);
+	}
+
+	function output($tokens) {
 		return '<?php if (' . implode(' ', $tokens) . '){ ?>';
 	}
 }
-class Template_plugin_IfEnd implements Template_Plugin {
+
+class Template_Plugin_Elseif extends Template_Plugin_If  {
+	function output($tokens) {
+		return '<?php }elseif (' . implode(' ', $tokens) . '){ ?>';
+	}
+
+}
+
+class Template_plugin_Else implements Template_Plugin {
+	function compile($tag) {
+		$output = '<?php }else{ ?>';
+		return $output;
+	}
+}
+class Template_plugin_EndIf implements Template_Plugin {
 	function compile($tag) {
 		$output = '<?php } ?>';
 		return $output;
