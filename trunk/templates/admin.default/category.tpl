@@ -1,6 +1,8 @@
-<?php include 'header.php'?>
-<?php include 'dashboard.php'?>
-<?php if($adminAction == 'add'){?>
+{include file='header.tpl'}
+{include file='dashboard.tpl'}
+
+{if $action eq 'add' || $action eq 'edit'}
+
 <!-- Container Starts -->
 <div id="container">
 
@@ -13,7 +15,7 @@
     
 <form action="" method="post" >
    <div class="wrap">
-      <h2>添加目录 </h2>
+      <h2>{if $action eq 'add'}添加目录 {else}修改目录{endif}</h2>
 
       <div id="poststuff">
 
@@ -22,14 +24,14 @@
 <h3>名称</h3>
 <div class="inside">
 
-	<input type="text" id="name" value="" tabindex="1" size="30" name="name"/><br/>
+	<input type="text" id="name" value="{$category.name}" tabindex="1" size="30" name="name"/><br/>
     目录的名字，将会显示在页面上</div>
 </div>
 
 <div class="stuffbox" id="addressdiv">
 <h3>名称(slug)</h3>
 <div class="inside">
-	<input type="text" id="slug" value="" tabindex="1" size="30" name="slug"/><br/>
+	<input type="text" id="slug" value="{$category.slug}" tabindex="1" size="30" name="slug"/><br/>
     "slug"是一个URL友好的名称，将会被用在生成的url链接里面，通常只包含英文，数字和下划线</div>
 </div>
 
@@ -64,11 +66,8 @@
 <!-- Container Ends -->
 
 
-<?php }elseif($adminAction == 'add'){?>
-d
-<?php }
+{else}
 
-?>
 <!-- Container Starts -->
 <div id="container">
 
@@ -82,7 +81,7 @@ d
  <form action="" method="post" >
    <div class="wrap">
 
-      <h2>管理目录 (<a href="/admin/category?action=add">新建</a>)</h2>
+      <h2>管理目录 (<a href="/admin/category/add">新建</a>)</h2>
 
       <div class="" style="padding:10px 5px 5px 5px"><B>所有目录</b><span style='color:gray'> (1) </span></div>
 
@@ -115,18 +114,16 @@ d
 			</thead>
 			<tbody>
 			
-<?php
-
-foreach($category as $cate) {?>
-			<tr valign="middle" id="link-<?php echo $cate->slug;?>">
+{foreach $category as $cate}
+			<tr valign="middle" id="link-{$cate.slug}">			
 			                <td  colspan="2" style="text-align:left;padding-left:20px;"><input style="margin-left:0.0px;"
-							type="checkbox" value="<?php echo $cate->slug;?>" name="checks"/>  <a class="row-title"
-							title='Edit "sdf"' href="/admin/category/<?php echo $cate->slug;?>"><?php echo $cate->name;?></a></td>
-                            <td><?php echo $cate->slug;?></td>
-                             <td></td>
+							type="checkbox" value="{$cate.slug}" name="checks"/>  <a class="row-title"
+							title='Edit "sdf"' href="{$editurl}{$cate.slug}">{$cate.name}</a></td>
+                            <td>{$cate.slug}</td> 
+                             <td></td> 
                            </tr>
 			  	
-			<?php }?>
+			{endforeach}
 			<tr valign="middle" id="link-agRtbG9ncg4LEghDYXRlZ29yeRgGDA">			
 			                <td  colspan="2" style="text-align:left;padding-left:20px;"><input style="margin-left:20.0px;" type="checkbox" value="agRtbG9ncg4LEghDYXRlZ29yeRgGDA" name="checks"/>  <a class="row-title" title='Edit "asdasd"' href="/admin/category?key=agRtbG9ncg4LEghDYXRlZ29yeRgGDA&amp;action=edit">asdasd</a></td>
                             <td>asdasd</td>
@@ -152,5 +149,5 @@ foreach($category as $cate) {?>
 <div class="clear"></div>
 </div>
 <!-- Container Ends -->
-
-<?php include 'footer.php'?>
+{endif}
+{include file='footer.tpl'}

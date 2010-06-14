@@ -15,12 +15,14 @@ class Admin {
 	private $adapter_instance;
 	static protected $name;
 	static protected $action;
+
 	
 	public function __construct($name = '', $action = '') {
 		self::$name = ucfirst($name);
 		//if (is_callable(array( $name, $action )))
 		$this->setAdapter(self::$name, $action);
 		//throw new Exception('' . $name . '::' . $action . ' not exists!');
+
 	}
 
 	public function setAdapter($name = '',  $action = '') {
@@ -34,6 +36,18 @@ class Admin {
 		self::$action = $action;
 		return $this->adapter_instance;
 	}
+
+    public function __set($nm, $val)
+    {
+        echo "Setting [$nm] to $val\n";
+
+        if (isset($this->x[$nm])) {
+            $this->x[$nm] = $val;
+            echo "OK!\n";
+        } else {
+            echo "Not OK!\n";
+        }
+    }
 	/**
 	 * Magic: 方法调用
 	 *
@@ -52,5 +66,27 @@ class Admin {
 	}
 }
 
+class AdminDo {
+	public $smarty;
+	public function __construct(){
+		$this->initTemplate();
+	}
+
+	public function initTemplate($action) {
+		$this->smarty = new Template();
+		$this->smarty->setTemplateDir( __ROOT_DIR__ . __DS__ . 'templates' . __DS__ . 'admin.default');
+		$this->smarty->setCompileDir('./templatec_s/', true);
+		$this->assign('action', $action);
+	}
+
+	public function assign( $tpl_var, $value = null) {
+
+		return $this->smarty->assign($tpl_var, $value);
+	}
+
+	public function display($filename) {
+		return $this->smarty->display($filename);
+	}
+}
 class AdminException extends Exception{
 }

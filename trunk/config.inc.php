@@ -2,7 +2,9 @@
 $rules_config['admin'] = array(
 	'/admin' => array('controller' => 'home'),
 	'/admin/category' => array('controller' => 'category'),
-	'/admin/category/:category' => array('controller' => 'category'),
+	'/admin/category/add' => array('controller' => 'category', 'action' => 'add'),
+	'/admin/category/edit/:slug' => array('controller' => 'category', 'action' => 'edit'),
+	'/admin/category/:slug' => array('controller' => 'category'),
 	'/admin/category/:category/page/:page' => array('controller' => 'category'),
 	'/admin/setup' => array('controller' => 'setup'),
 

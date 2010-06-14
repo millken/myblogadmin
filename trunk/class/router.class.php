@@ -27,15 +27,15 @@ class Router {
 		}
 	}
 
-	private static function arrayClean($array) {
+	private static function arrayClean(&$array) {
 		foreach($array as $key => $value) {
 			if (strlen($value) == 0) unset($array[$key]);
 		}
 	}
 
 	private static function ruleMatch($rule, $data) {
-		$ruleItems = explode('/',$rule); self::arrayClean(&$ruleItems);
-		$dataItems = explode('/',$data); self::arrayClean(&$dataItems);
+		$ruleItems = explode('/',$rule); self::arrayClean($ruleItems);
+		$dataItems = explode('/',$data); self::arrayClean($dataItems);
 		if (count($ruleItems) == count($dataItems)) {
 			$result = array();
 
